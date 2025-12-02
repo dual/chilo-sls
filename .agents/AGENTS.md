@@ -3,6 +3,7 @@
 This library mirrors Chilo’s API surface for AWS Lambda/API Gateway. Agents: start here to integrate quickly; this is **not** a contributor guide.
 
 ## Core Concepts
+
 - **Router**: `chilo_sls.apigateway.router.Router` takes a `base_path` and a glob `handlers` (directories default to `**/*.py`). It auto-routes based on file paths.
 - **Handlers**: Regular Python modules/functions (e.g., `post`, `get`) in your handlers glob. Dynamic segments use `_` in filenames/directories (e.g., `_user_id.py` → `{user_id}`).
 - **Requests/Responses**: Use `chilo_sls.apigateway.request.Request` and `chilo_sls.apigateway.response.Response`. Request wraps Lambda events; Response produces API Gateway–compatible output.
@@ -11,6 +12,7 @@ This library mirrors Chilo’s API surface for AWS Lambda/API Gateway. Agents: s
 - **Hooks**: `before_all`, `after_all`, `when_auth_required`, `on_error`, `on_timeout`. Lifecycle: `on_startup`, `on_shutdown` via `router.warmup()` / `router.cooldown()`.
 
 ## Minimal Setup
+
 ```python
 from chilo_sls.apigateway.router import Router
 
@@ -29,6 +31,7 @@ router = Router(
 ```
 
 Lambda entrypoint:
+
 ```python
 from api.main import router
 
@@ -37,6 +40,7 @@ def handler(event, context):
 ```
 
 Warm/cool (optional):
+
 ```python
 def warmup(event, context):
     router.warmup()
@@ -46,6 +50,7 @@ def cooldown(event, context):
 ```
 
 ## Handler Example
+
 ```python
 # api/handlers/user/_user_id.py  -> /v1/user/{user_id}
 from chilo_sls.apigateway.request import Request
@@ -59,6 +64,7 @@ def post(request: Request, response: Response) -> Response:
 ```
 
 ## Patterns & Tips
+
 - Handlers glob: pass a directory to auto-expand to `**/*.py`, or pass an explicit glob.
 - Dynamic params: prefix filenames/dirs with `_` (e.g., `_id.py`, `_user_id/item/_item_id.py`).
 - Validation: request/response validation only runs when you set the `openapi_validate_*` flags.
@@ -67,11 +73,7 @@ def post(request: Request, response: Response) -> Response:
 - Cache: Router caches resolved endpoints; `cache_size=None` disables, `0` unlimited, `cache_mode` = `all|static-only|dynamic-only`.
 
 ## Parity with Chilo
+
 - Naming: use `when_auth_required`, `before_all`, `after_all`, `on_startup`, `on_shutdown`, `openapi_validate_request/response`, `openapi`.
 - Request properties: `authorization`, `content_type`, `mimetype`, `host_url`, `domain`, `method`, `path`, `route`, `path_params`, `query_params`, `body/json/form/xml/graphql/raw/text`, `cookies`, `timeout`.
 - Response properties: `headers`, `cors`, `compress`, `code`, `has_errors`, `body/raw`, `content_type`, `is_json`, `base64_encoded`, `full`.
-
-## Run Tests (Pipenv)
-```bash
-pipenv run pytest --maxfail=20 --disable-warnings
-```
