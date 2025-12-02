@@ -12,7 +12,7 @@ class ValidatorTest(unittest.TestCase):
     schema_path = 'tests/mocks/common/openapi.yml'
 
     def setUp(self):
-        self.validator = Validator(schema=self.schema_path)
+        self.validator = Validator(openapi=self.schema_path)
 
     def test_empty_validation(self):
         request = Request(mock_request.get_basic_for_validation())
@@ -117,7 +117,7 @@ class ValidatorTest(unittest.TestCase):
         self.assertEqual('{"errors": [{"key_path": "root", "message": "\'id\' is a required property"}]}', response.body)
 
     def test_validate_request_with_openapi_passes(self):
-        request = Request(mock_request.get_auto_validated_data())
+        request = Request(mock_request.get_openapi_validate_request_data())
         response = Response()
         self.validator.validate_request_with_openapi(request, response)
 

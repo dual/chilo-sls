@@ -8,6 +8,8 @@ def mock_after_all(request, response, requirements):
 
 def mock_with_auth(request, response, requirements):
     mock_with_auth.has_been_called = True
+def mock_when_auth_required(request, response, requirements):
+    mock_when_auth_required.has_been_called = True
 
 
 def mock_on_error(request, response, error):
@@ -21,3 +23,11 @@ def mock_on_error_exception(request, response, error):
 
 def mock_on_timeout(request, response, error):
     mock_on_timeout.has_been_called = True
+
+
+def mock_on_startup():
+    mock_on_startup.has_been_called = True
+
+
+def mock_on_shutdown():
+    mock_on_shutdown.has_been_called = True

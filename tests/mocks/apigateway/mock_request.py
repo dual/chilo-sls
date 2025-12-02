@@ -776,6 +776,11 @@ def get_auto_validated_data():
     }
 
 
+def get_openapi_validate_request_data():
+    # Backwards compatibility alias for validator tests
+    return get_auto_validated_data()
+
+
 def get_auto_validated_data_fails():
     return {
         'headers': {

@@ -47,16 +47,16 @@ class DynamoDBEventTest(unittest.TestCase):
         self.assertTrue(isinstance(event.records[0].record, Record))
 
     def test_event_validate_record_body_with_schema_file(self):
-        event = Event(self.created_event, schema=self.schema_path, required_body='v1-ddb-body')
+        event = Event(self.created_event, openapi=self.schema_path, required_body='v1-ddb-body')
         self.assertDictEqual(event.records[0].body, self.expected_body)
 
     def test_event_validate_filters_out_record_body_with_schema_file(self):
-        event = Event(self.created_event, schema=self.schema_path, required_body='v1-ddb-body-wrong')
+        event = Event(self.created_event, openapi=self.schema_path, required_body='v1-ddb-body-wrong')
         self.assertEqual(len(event.records), 0)
 
     def test_event_validate_raises_exception_record_body_with_schema_file(self):
         try:
-            event = Event(self.created_event, schema=self.schema_path, required_body='v1-ddb-body-wrong', raise_body_error=True)
+            event = Event(self.created_event, openapi=self.schema_path, required_body='v1-ddb-body-wrong', raise_body_error=True)
             print(event.records)
             self.assertTrue(False)
         except RecordException as record_error:
@@ -106,7 +106,7 @@ class DynamoDBEventTest(unittest.TestCase):
                 }
             }
         }
-        event = Event(self.created_event, schema=self.schema_path, required_body=schema)
+        event = Event(self.created_event, openapi=self.schema_path, required_body=schema)
         self.assertDictEqual(event.records[0].body, self.expected_body)
 
     def test_event_validate_raises_error_record_body_with_schema_dict(self):
@@ -154,7 +154,7 @@ class DynamoDBEventTest(unittest.TestCase):
             }
         }
         try:
-            event = Event(self.created_event, schema=self.schema_path, required_body=schema, raise_body_error=True)
+            event = Event(self.created_event, openapi=self.schema_path, required_body=schema, raise_body_error=True)
             print(event.records)
             self.assertTrue(False)
         except RecordException as record_error:
@@ -204,7 +204,7 @@ class DynamoDBEventTest(unittest.TestCase):
                 }
             }
         }
-        event = Event(self.created_event, schema=self.schema_path, required_body=schema)
+        event = Event(self.created_event, openapi=self.schema_path, required_body=schema)
         self.assertEqual(len(event.records), 0)
 
     def test_event_print(self):

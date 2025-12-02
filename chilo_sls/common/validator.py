@@ -47,14 +47,14 @@ class Validator:
         if response.has_errors:
             response.code = 400
 
-    def validate_response_with_openapi(self, request, response):
+    def openapi_validate_response_with_openapi(self, request, response):
         requirements = {}
         route_spec = self.__schema.get_route_spec(request.route, request.method)
         if route_spec.get('responses'):
             requirements['required_response'] = route_spec['responses'][f'{response.code}']['content'][response.content_type]['schema']
-        self.validate_response(response, requirements)
+        self.openapi_validate_response(response, requirements)
 
-    def validate_response(self, response, requirements):
+    def openapi_validate_response(self, response, requirements):
         Validator.check_required_body(response, self.__schema.get_body_spec(requirements.get('required_response', {})), response.raw)
         if response.has_errors:
             response.set_error('response', 'There was a problem with the APIs response; does not match defined schema')

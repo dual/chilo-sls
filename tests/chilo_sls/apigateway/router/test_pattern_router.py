@@ -20,12 +20,14 @@ class RouterPatternTest(unittest.TestCase):
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*'
     }
+    startup_hooks = [mock_middleware.mock_on_startup]
+    shutdown_hooks = [mock_middleware.mock_on_shutdown]
 
     def test_basic_pattern_routing_works(self):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(self.basic_event, None)
         json_dict_response = json.loads(result['body'])
@@ -52,12 +54,12 @@ class RouterPatternTest(unittest.TestCase):
         self.assertDictEqual(self.expected_open_headers, result['headers'])
         self.assertDictEqual({'pattern_triple_coordinates': {'proxy': 'triple', 'x': '1', 'y': '2', 'z': '3'}}, json_dict_response)
 
-    def test_basic_pattern_routing_works_with_verbose_logging(self):
+    def test_basic_pattern_routing_works_with_verbose(self):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path,
-            verbose_logging=True
+            openapi=self.schema_path,
+            verbose=True
         )
         result = router.route(self.basic_event, None)
         json_dict_response = json.loads(result['body'])
@@ -71,7 +73,7 @@ class RouterPatternTest(unittest.TestCase):
             router = Router(
                 base_path=self.base_path,
                 handlers=self.handler_pattern,
-                schema=self.schema_path
+                openapi=self.schema_path
             )
             router.auto_load()
             self.assertTrue(True)
@@ -95,7 +97,7 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(self.raise_exception_event, None)
         json_dict_response = json.loads(result['body'])
@@ -108,7 +110,7 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path,
+            openapi=self.schema_path,
             output_error=True
         )
         result = router.route(self.unhandled_exception_event, None)
@@ -123,7 +125,7 @@ class RouterPatternTest(unittest.TestCase):
             base_path=self.base_path,
             handlers=self.handler_pattern,
             before_all=mock_middleware.mock_before_all,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         router.route(self.basic_event, None)
         self.assertTrue(mock_middleware.mock_before_all.has_been_called)
@@ -133,27 +135,28 @@ class RouterPatternTest(unittest.TestCase):
             base_path=self.base_path,
             handlers=self.handler_pattern,
             after_all=mock_middleware.mock_after_all,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         router.route(self.basic_event, None)
         self.assertTrue(mock_middleware.mock_after_all.has_been_called)
 
-    def test_basic_pattern_routing_works_and_with_auth_function_called(self):
+    def test_basic_pattern_routing_works_and_when_auth_required_function_called(self):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            with_auth=mock_middleware.mock_with_auth,
-            schema=self.schema_path
+            when_auth_required=mock_middleware.mock_when_auth_required,
+            openapi=self.schema_path
         )
         router.route(self.basic_event, None)
-        self.assertTrue(mock_middleware.mock_with_auth.has_been_called)
+        self.assertTrue(mock_middleware.mock_when_auth_required.has_been_called)
+        mock_middleware.mock_when_auth_required.has_been_called = False
 
     def test_basic_pattern_routing_works_and_on_error_function_called(self):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
             on_error=mock_middleware.mock_on_error,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         router.route(self.raise_exception_event, None)
         self.assertTrue(mock_middleware.mock_on_error.has_been_called)
@@ -163,7 +166,7 @@ class RouterPatternTest(unittest.TestCase):
             base_path=self.base_path,
             handlers=self.handler_pattern,
             on_error=mock_middleware.mock_on_error_exception,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         router.route(self.raise_exception_event, None)
         self.assertTrue(mock_middleware.mock_on_error_exception.has_been_called)
@@ -184,7 +187,7 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(dynamic_event, None)
         self.assertEqual(200, result['statusCode'])
@@ -205,7 +208,7 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(dynamic_event, None)
         self.assertEqual(400, result['statusCode'])
@@ -227,7 +230,7 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(dynamic_event, None)
         self.assertEqual(200, result['statusCode'])
@@ -318,7 +321,7 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
@@ -345,7 +348,7 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
@@ -367,7 +370,7 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
@@ -388,14 +391,14 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
         self.assertEqual(400, result['statusCode'])
         self.assertDictEqual({'errors': [{'key_path': 'root', 'message': "'test_id' is a required property"}]}, json_dict_response)
 
-    def test_basic_pattern_routing_works_with_validate_response_body(self):
+    def test_basic_pattern_routing_works_with_openapi_validate_response_body(self):
         dynamic_event = self.mock_request.get_dynamic_event(
             headers={'x-api-key': 'some-key'},
             path='unit-test/v1/auto',
@@ -405,14 +408,14 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
         self.assertEqual(200, result['statusCode'])
         self.assertDictEqual({'page_number': 1, 'data': {'id': '2'}}, json_dict_response)
 
-    def test_auto_validate_works_and_passes_proper_dynamic_route_request(self):
+    def test_openapi_validate_request_works_and_passes_proper_dynamic_route_request(self):
         body = {
             'test_id': 'abc123',
             'object_key': {
@@ -436,15 +439,15 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path,
-            auto_validate=True
+            openapi=self.schema_path,
+            openapi_validate_request=True
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
         self.assertEqual(200, result['statusCode'])
         self.assertDictEqual({'router_pattern_auto': body}, json_dict_response)
 
-    def test_auto_validate_works_and_fails_improper_dynamic_route_request(self):
+    def test_openapi_validate_request_works_and_fails_improper_dynamic_route_request(self):
         dynamic_event = self.mock_request.get_dynamic_event(
             headers={'content-type': 'application/json', 'x-api-key': 'some-key'},
             path='unit-test/v1/auto',
@@ -466,15 +469,15 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path,
-            auto_validate=True
+            openapi=self.schema_path,
+            openapi_validate_request=True
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
         self.assertEqual(400, result['statusCode'])
         self.assertDictEqual({'errors': [{'key_path': 'root', 'message': "'test_id' is a required property"}]}, json_dict_response)
 
-    def test_auto_validate_works_and_passes_proper_dynamic_route_request_with_optional_params(self):
+    def test_openapi_validate_request_works_and_passes_proper_dynamic_route_request_with_optional_params(self):
         dynamic_event = self.mock_request.get_dynamic_event(
             headers={'x-api-key': 'some-key'},
             path='unit-test/v1/optional-params',
@@ -487,15 +490,15 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path,
-            auto_validate=True
+            openapi=self.schema_path,
+            openapi_validate_request=True
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
         self.assertEqual(200, result['statusCode'])
         self.assertDictEqual({'router_pattern_optional': True}, json_dict_response)
 
-    def test_auto_validate_works_with_base_path_and_optional_params(self):
+    def test_openapi_validate_request_works_with_base_path_and_optional_params(self):
         dynamic_event = self.mock_request.get_dynamic_event(
             headers={'x-api-key': 'some-key'},
             path='unit-test/v1/optional-params',
@@ -508,15 +511,15 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.base_path_schema_path,
-            auto_validate=True
+            openapi=self.base_path_schema_path,
+            openapi_validate_request=True
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
         self.assertEqual(200, result['statusCode'])
         self.assertDictEqual({'router_pattern_optional': True}, json_dict_response)
 
-    def test_basic_pattern_routing_works_with_auto_validate_and_with_auth_function_called(self):
+    def test_basic_pattern_routing_works_with_openapi_validate_request_and_when_auth_required_function_called(self):
         dynamic_event = self.mock_request.get_dynamic_event(
             headers={'x-api-key': 'some-key'},
             path='unit-test/v1/auto',
@@ -526,14 +529,37 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            with_auth=mock_middleware.mock_with_auth,
-            schema=self.schema_path,
-            auto_validate=True
+            when_auth_required=mock_middleware.mock_when_auth_required,
+            openapi=self.schema_path,
+            openapi_validate_request=True
         )
         router.route(dynamic_event, None)
-        self.assertTrue(mock_middleware.mock_with_auth.has_been_called)
+        self.assertTrue(mock_middleware.mock_when_auth_required.has_been_called)
+        mock_middleware.mock_when_auth_required.has_been_called = False
 
-    def test_basic_pattern_routing_works_with_auto_validate_response_body(self):
+    def test_warmup_calls_startup_hooks(self):
+        router = Router(
+            base_path=self.base_path,
+            handlers=self.handler_pattern,
+            on_startup=self.startup_hooks,
+            openapi=self.schema_path
+        )
+        router.warmup()
+        self.assertTrue(mock_middleware.mock_on_startup.has_been_called)
+        mock_middleware.mock_on_startup.has_been_called = False
+
+    def test_cooldown_calls_shutdown_hooks(self):
+        router = Router(
+            base_path=self.base_path,
+            handlers=self.handler_pattern,
+            on_shutdown=self.shutdown_hooks,
+            openapi=self.schema_path
+        )
+        router.cooldown()
+        self.assertTrue(mock_middleware.mock_on_shutdown.has_been_called)
+        mock_middleware.mock_on_shutdown.has_been_called = False
+
+    def test_basic_pattern_routing_works_with_openapi_validate_request_response_body(self):
         dynamic_event = self.mock_request.get_dynamic_event(
             headers={'x-api-key': 'some-key'},
             path='unit-test/v1/auto',
@@ -543,16 +569,16 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path,
-            auto_validate=True,
-            validate_response=True
+            openapi=self.schema_path,
+            openapi_validate_request=True,
+            openapi_validate_response=True
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
         self.assertEqual(200, result['statusCode'])
         self.assertDictEqual({'page_number': 1, 'data': {'id': '2'}}, json_dict_response)
 
-    def test_basic_pattern_routing_fails_with_auto_validate_response_body(self):
+    def test_basic_pattern_routing_fails_with_openapi_validate_request_response_body(self):
         dynamic_event = self.mock_request.get_dynamic_event(
             headers={'x-api-key': 'some-key'},
             path='unit-test/v1/auto',
@@ -562,9 +588,9 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path,
-            auto_validate=True,
-            validate_response=True
+            openapi=self.schema_path,
+            openapi_validate_request=True,
+            openapi_validate_response=True
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])
@@ -599,8 +625,8 @@ class RouterPatternTest(unittest.TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_pattern,
-            schema=self.schema_path,
-            validate_response=True
+            openapi=self.schema_path,
+            openapi_validate_response=True
         )
         result = router.route(dynamic_event, None)
         json_dict_response = json.loads(result['body'])

@@ -79,7 +79,7 @@ class S3EventTest(unittest.TestCase):
             get_object=True,
             data_type='json',
             required_body='v1-s3-body',
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         self.assertDictEqual(event.records[0].body, self.expected_json_data)
 
@@ -109,7 +109,7 @@ class S3EventTest(unittest.TestCase):
             get_object=True,
             data_type='json',
             required_body='v1-s3-body',
-            schema=schema
+            openapi=schema
         )
         self.assertDictEqual(event.records[0].body, self.expected_json_data)
 
@@ -139,7 +139,7 @@ class S3EventTest(unittest.TestCase):
             get_object=True,
             data_type='json',
             required_body='v1-s3-body',
-            schema=schema,
+            openapi=schema,
             raise_body_error=True
         )
         try:
@@ -153,7 +153,7 @@ class S3EventTest(unittest.TestCase):
             self.basic_event,
             get_object=True,
             data_type='json',
-            schema=self.schema_path,
+            openapi=self.schema_path,
             required_body='v1-s3-body-wrong'
         )
         self.assertEqual(len(event.records), 0)
@@ -163,7 +163,7 @@ class S3EventTest(unittest.TestCase):
             self.basic_event,
             get_object=True,
             data_type='json',
-            schema=self.schema_path,
+            openapi=self.schema_path,
             required_body='v1-s3-body-wrong',
             raise_body_error=True
         )
