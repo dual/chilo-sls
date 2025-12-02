@@ -32,10 +32,9 @@ uv pip install -e .
 ## 🎯 Why chilo-sls
 
 - 🪂 **Serverless now, Chilo later** – Handler signatures, requirements, and validation flags align with Chilo to ease migration.
-- 🗺️ **Zero route boilerplate** – File paths (with `_` for dynamic segments) become routes automatically.
+- 🗺️ **Routing without ceremony** – Point at a directory and it discovers handlers (defaults to recursive `**/*.py`) with sensible dynamic segment mapping, no mode switching.
 - ✅ **Built-in validation** – Use `openapi_validate_request/response` with an OpenAPI file or requirement decorators.
-- 🔌 **Middleware + lifecycle hooks** – `before_all`, `after_all`, `when_auth_required`, `on_error`, `on_timeout`, plus `on_startup`/`on_shutdown` via `warmup()`/`cooldown()`.
-- 🧭 **Unified glob routing** – A single pattern resolver; directories default to recursive `**/*.py`.
+- 🔌 **Lifecycle-aware middleware** – Hooks for auth, per-request work, error/timeout handling, and app lifecycle (`warmup`/`cooldown`) so you can wire observability and setup/teardown cleanly.
 - 🛡️ **CORS + compression** – Response helpers for CORS and optional gzip/base64 for API Gateway.
 
 ---
@@ -79,16 +78,12 @@ def post(request: Request, response: Response) -> Response:
 # lambda_handler.py
 from api.main import router
 
+# eager-load handlers and run startup hooks outside the handler
+router.auto_load()
+router.warmup()
+
 def handler(event, context):
     return router.route(event, context)
-```
-
-4) **(Optional) Warm/cool the router**
-```python
-def warmup(event, context):
-    router.warmup()
-def cooldown(event, context):
-    router.cooldown()
 ```
 
 ### Dynamic routes by filename
