@@ -1,0 +1,35 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[requires]
+python_version = "3.9"
+
+[pipenv]
+allow_prereleases = false
+
+[packages]
+boto3 = "*"
+dynamodb_json = "*"
+jsonpickle = "*"
+jsonref = "*"
+jsonschema = "*"
+pydantic = "*"
+pyyaml = "*"
+simplejson = "*"
+xmltodict = "*"
+
+[dev-packages]
+autopep8 = "*"
+moto = "*"
+pylint = "*"
+pytest = "*"
+pytest-html = "*"
+pytest-cov = "*"
+
+[scripts]
+generate = "python -m chilo_sls.apigateway generate-openapi --base=chilo_sls/example --handlers=tests/mocks/apigateway/openapi/**/*.py --output=tests/outputs --format=json,yml --delete"
+test = "python -m unittest discover"
+coverage = "coverage run --source chilo_sls/ -m pytest tests/chilo_sls --cov=chilo_sls --junitxml ./coverage/reports/xunit.xml --cov-report xml:./coverage/reports/coverage.xml --html=./coverage/reports/index.html --self-contained-html --cov-report html:./coverage -p no:warnings -o log_cli=true"
+lint = "pylint chilo_sls --recursive=y --fail-under 10 --output-format=text:coverage/lint/report.txt,json:coverage/lint/report.json,parseable,colorized"
