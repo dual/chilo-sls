@@ -96,6 +96,11 @@ class Request:
         return self.__request_context.get('authorizer', self.headers)
 
     @property
+    def authorization(self):
+        # For parity with chilo_api; return authorizer info
+        return self.authorizer
+
+    @property
     def headers(self):
         headers = {k.lower(): v for k, v in self.__event.get('headers', {}).items()}
         return headers
@@ -134,6 +139,16 @@ class Request:
     @property
     def raw(self):
         return self.__body
+
+    @property
+    def text(self):
+        # Return raw body as text for parity with chilo_api
+        return str(self.__body) if self.__body is not None else ''
+
+    @property
+    def mimetype(self):
+        # Align with chilo_api naming; use content_type base
+        return self.content_type if self.content_type else 'raw'
 
     @property
     def params(self):
