@@ -10,7 +10,7 @@ import yaml
 class Schema:
 
     def __init__(self, **kwargs):
-        self.__schema = kwargs.get('schema')
+        self.__schema = kwargs.get('openapi') or kwargs.get('schema')
         self.__config = kwargs.get('schema_config', {})
         self.__spec = {}
 

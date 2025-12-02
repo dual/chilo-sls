@@ -1,30 +1,22 @@
 from chilo_sls.apigateway.resolver.cache import ResolverCache
 from chilo_sls.apigateway.endpoint import Endpoint
 from chilo_sls.apigateway.exception import ApiException
-from chilo_sls.apigateway.resolver.modes.mapping import MappingModeResolver
 from chilo_sls.apigateway.resolver.modes.pattern import PatternModeResolver
 
 
 class Resolver:
-    PATTERN_MODE = 'pattern'
-    MAPPING_MODE = 'mapping'
     __cache_misses = 0
-    __available_resolvers = {
-        'mapping': MappingModeResolver,
-        'pattern': PatternModeResolver
-    }
 
     def __init__(self, **kwargs):
-        self.__mode = self.__determine_routing_mode(kwargs)
         self.__cacher = ResolverCache(**kwargs)
-        self.__resolver = self.__available_resolvers[self.__mode](**kwargs)
+        self.__resolver = PatternModeResolver(**kwargs)
 
     @property
     def cache_misses(self):
         return self.__cache_misses
 
     def auto_load(self):
-        if self.__mode != self.MAPPING_MODE:
+        if hasattr(self.__resolver, 'load_importer_files'):
             self.__resolver.load_importer_files()
 
     def get_endpoint(self, request):
@@ -34,14 +26,9 @@ class Resolver:
         endpoint = Endpoint(endpoint_module, request.method)
         self.__assign_normalized_route(request, endpoint)
         self.__check_dynamic_route_and_apply_params(request, endpoint)
-        self.__cacher.put(request.path, endpoint_module,self.__resolver.has_dynamic_route, self.__resolver.dynamic_parts)
+        self.__cacher.put(request.path, endpoint_module, self.__resolver.has_dynamic_route, self.__resolver.dynamic_parts)
         self.__resolver.reset()
         return endpoint
-
-    def __determine_routing_mode(self, kwargs):
-        if isinstance(kwargs['handlers'], dict):
-            return self.MAPPING_MODE
-        return self.PATTERN_MODE
 
     def __get_endpoint_module(self, request):
         cached = self.__cacher.get(request.path)

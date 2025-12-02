@@ -157,31 +157,31 @@ class SchemaTest(unittest.TestCase):
     }
 
     def test_get_openapi_spec(self):
-        schema_factory = Schema(schema=self.schema_path)
+        schema_factory = Schema(openapi=self.schema_path)
         spec = schema_factory.get_openapi_spec()
         self.assertTrue(isinstance(spec, dict))
 
     def test_get_body_spec_from_file(self):
-        schema = Schema(schema=self.schema_path)
+        schema = Schema(openapi=self.schema_path)
         spec = schema.get_body_spec('v1-schema-factory-test')
         self.assertDictEqual(self.expected_dict_from_path, spec)
 
     def test_get_combined_body_spec_from_file(self):
-        schema = Schema(schema=self.schema_path)
+        schema = Schema(openapi=self.schema_path)
         spec = schema.get_body_spec('v1-test-request')
         self.assertDictEqual(self.expected_combined_dict, spec)
 
     def test_get_body_spec_from_dict(self):
-        schema = Schema(schema=self.schema_dict)
+        schema = Schema(openapi=self.schema_dict)
         spec = schema.get_body_spec()
         self.assertDictEqual(self.expected_dict_from_dict, spec)
 
     def test_get_body_spec_from_pydantic_model(self):
-        schema = Schema(schema=self.schema_path)
+        schema = Schema(openapi=self.schema_path)
         spec = schema.get_body_spec(Request)
         self.assertTrue(issubclass(spec, BaseModel))
 
     def test_get_spec_from_route(self):
-        schema = Schema(schema=self.schema_path)
+        schema = Schema(openapi=self.schema_path)
         spec = schema.get_route_spec('/unit-test/v1/schema', 'get')
         self.assertDictEqual(self.expected_route_spec, spec)

@@ -10,10 +10,10 @@ class ConfigValidatorTest(unittest.TestCase):
         try:
             ConfigValidator.validate(
                 base_path='some/path',
-                handlers={'route': 'file/path.py'},
-                schema='path/to/schema',
-                auto_validate=True,
-                validate_response=True,
+                handlers='some/path/**/*.py',
+                openapi='path/to/schema',
+                openapi_validate_request=True,
+                openapi_validate_response=True,
                 cache_size=128,
                 cache_mode='all'
             )
@@ -21,9 +21,9 @@ class ConfigValidatorTest(unittest.TestCase):
             ConfigValidator.validate(
                 base_path='some/path',
                 handlers='some/path',
-                schema={'json_schema': True},
-                auto_validate=False,
-                validate_response=False,
+                openapi={'json_schema': True},
+                openapi_validate_request=False,
+                openapi_validate_response=False,
                 cache_size=None
             )
             self.assertTrue(True)
@@ -44,7 +44,7 @@ class ConfigValidatorTest(unittest.TestCase):
             self.assertTrue(False)
         except ApiException as api_error:
             self.assertTrue(isinstance(api_error, ApiException))
-            self.assertEqual('handlers is required; must be glob pattern string or dictionary mapping {route: file_path}', api_error.message)
+            self.assertEqual('handlers is required; must be glob pattern string', api_error.message)
 
     def test_config_validator_validates_routing_handlers_are_appropriate(self):
         try:
@@ -52,43 +52,43 @@ class ConfigValidatorTest(unittest.TestCase):
             self.assertTrue(False)
         except ApiException as api_error:
             self.assertTrue(isinstance(api_error, ApiException))
-            self.assertEqual('handlers is required; must be glob pattern string or dictionary mapping {route: file_path}', api_error.message)
+            self.assertEqual('handlers is required; must be glob pattern string', api_error.message)
 
     def test_config_validator_validates_routing_schema_is_appropriate(self):
         try:
-            ConfigValidator.validate(base_path='some/path', handlers={'route': 'file/path.py'}, schema=1)
+            ConfigValidator.validate(base_path='some/path', handlers='some/path/**/*.py', openapi=1)
             self.assertTrue(False)
         except ApiException as api_error:
             self.assertTrue(isinstance(api_error, ApiException))
-            self.assertEqual('schema should either be file path string or json-schema style dictionary', api_error.message)
+            self.assertEqual('openapi should either be file path string or json-schema style dictionary', api_error.message)
 
-    def test_config_validator_validates_routing_auto_validate_is_appropriate(self):
+    def test_config_validator_validates_routing_openapi_validate_request_is_appropriate(self):
         try:
-            ConfigValidator.validate(base_path='some/path', handlers={'route': 'file/path.py'}, auto_validate=1)
+            ConfigValidator.validate(base_path='some/path', handlers='some/path/**/*.py', openapi_validate_request=1)
             self.assertTrue(False)
         except ApiException as api_error:
             self.assertTrue(isinstance(api_error, ApiException))
-            self.assertEqual('auto_validate should be a boolean', api_error.message)
+            self.assertEqual('openapi_validate_request should be a boolean', api_error.message)
 
-    def test_config_validator_validates_routing_validate_response_is_appropriate(self):
+    def test_config_validator_validates_routing_openapi_validate_response_is_appropriate(self):
         try:
-            ConfigValidator.validate(base_path='some/path', handlers={'route': 'file/path.py'}, validate_response=1)
+            ConfigValidator.validate(base_path='some/path', handlers='some/path/**/*.py', openapi_validate_response=1)
             self.assertTrue(False)
         except ApiException as api_error:
             self.assertTrue(isinstance(api_error, ApiException))
-            self.assertEqual('validate_response should be a boolean', api_error.message)
+            self.assertEqual('openapi_validate_response should be a boolean', api_error.message)
 
-    def test_config_validator_validates_routing_verbose_logging_is_appropriate(self):
+    def test_config_validator_validates_routing_verbose_is_appropriate(self):
         try:
-            ConfigValidator.validate(base_path='some/path', handlers={'route': 'file/path.py'}, verbose_logging=1)
+            ConfigValidator.validate(base_path='some/path', handlers='some/path/**/*.py', verbose=1)
             self.assertTrue(False)
         except ApiException as api_error:
             self.assertTrue(isinstance(api_error, ApiException))
-            self.assertEqual('verbose_logging should be a boolean', api_error.message)
+            self.assertEqual('verbose should be a boolean', api_error.message)
 
     def test_config_validator_validates_routing_cache_size_is_appropriate(self):
         try:
-            ConfigValidator.validate(base_path='some/path', handlers={'route': 'file/path.py'}, cache_size='1')
+            ConfigValidator.validate(base_path='some/path', handlers='some/path/**/*.py', cache_size='1')
             self.assertTrue(False)
         except ApiException as api_error:
             self.assertTrue(isinstance(api_error, ApiException))
@@ -96,7 +96,7 @@ class ConfigValidatorTest(unittest.TestCase):
 
     def test_config_validator_validates_routing_cache_mode_is_appropriate(self):
         try:
-            ConfigValidator.validate(base_path='some/path', handlers={'route': 'file/path.py'}, cache_mode='bad')
+            ConfigValidator.validate(base_path='some/path', handlers='some/path/**/*.py', cache_mode='bad')
             self.assertTrue(False)
         except ApiException as api_error:
             self.assertTrue(isinstance(api_error, ApiException))

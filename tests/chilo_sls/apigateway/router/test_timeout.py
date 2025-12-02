@@ -23,7 +23,7 @@ class RouterTimeoutTest(TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_path,
-            schema=self.schema_path,
+            openapi=self.schema_path,
             timeout=1
         )
         response = router.route(dynamic_event, None)
@@ -37,7 +37,7 @@ class RouterTimeoutTest(TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_path,
-            schema=self.schema_path
+            openapi=self.schema_path
         )
         response = router.route(dynamic_event, None)
         self.assertEqual(408, response['statusCode'])
@@ -50,7 +50,7 @@ class RouterTimeoutTest(TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_path,
-            schema=self.schema_path,
+            openapi=self.schema_path,
             timeout=1,
             on_timeout=mock_middleware.mock_on_timeout
         )
@@ -66,7 +66,7 @@ class RouterTimeoutTest(TestCase):
         router = Router(
             base_path=self.base_path,
             handlers=self.handler_path,
-            schema=self.schema_path,
+            openapi=self.schema_path,
             on_timeout=mock_middleware.mock_on_timeout
         )
         response = router.route(dynamic_event, None)
