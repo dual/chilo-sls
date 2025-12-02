@@ -41,7 +41,8 @@ uv pip install -e .
 
 ## 🚀 Quick Start (API Gateway)
 
-1) **Create a router**
+1. **Create a router**
+
 ```python
 # api/main.py
 from chilo_sls.apigateway.router import Router
@@ -60,7 +61,8 @@ router = Router(
 )
 ```
 
-2) **Write a handler**
+2. **Write a handler**
+
 ```python
 # api/handlers/basic.py  ->  /unit-test/v1/basic
 from chilo_sls.apigateway.request import Request
@@ -73,7 +75,8 @@ def post(request: Request, response: Response) -> Response:
     return response
 ```
 
-3) **Call the router from your Lambda entrypoint**
+3. **Call the router from your Lambda entrypoint**
+
 ```python
 # lambda_handler.py
 from api.main import router
@@ -87,7 +90,8 @@ def handler(event, context):
 ```
 
 ### Dynamic routes by filename
-```
+
+```txt
 api/handlers
 ├── __init__.py             -> /unit-test/v1/
 ├── user/_user_id.py        -> /unit-test/v1/user/{user_id}
@@ -101,14 +105,6 @@ api/handlers
 - Keep your handler signatures (`Request`, `Response`) and `requirements` decorators.
 - Keep `when_auth_required`, `before_all`, `after_all`, `on_error`, `on_timeout`, `on_startup`, `on_shutdown`.
 - Swap the runtime: chilo-sls uses Lambda events; Chilo uses WSGI/gRPC but similar routing/validation semantics.
-
----
-
-## 🧪 Testing
-
-```bash
-pipenv run pytest --maxfail=20 --disable-warnings
-```
 
 ---
 
