@@ -11,24 +11,32 @@ chilo-sls is a lightweight, opinionated Lambda/API Gateway framework. It auto-ro
 
 ---
 
+Agents: start with [.agents/AGENTS.md](.agents/AGENTS.md) for a quick “how to use” guide.
+
 ## 📦 Install (Python 3.12)
 
 ```bash
 pip install -e .
 # or with pipenv
 pipenv install --dev
+# or with poetry
+poetry install
+# or with hatch
+hatch env create && hatch run pip install -e .
+# or with uv
+uv pip install -e .
 ```
 
 ---
 
 ## 🎯 Why chilo-sls
 
-- **Serverless now, Chilo later** – Handler signatures, requirements, and validation flags align with Chilo to ease migration.
-- **Zero route boilerplate** – File paths (with `_` for dynamic segments) become routes automatically.
-- **Built-in validation** – Use `openapi_validate_request/response` with an OpenAPI file or requirement decorators.
-- **Middleware + lifecycle hooks** – `before_all`, `after_all`, `when_auth_required`, `on_error`, `on_timeout`, plus `on_startup`/`on_shutdown` via `warmup()`/`cooldown()`.
-- **Unified glob routing** – A single pattern resolver; directories default to recursive `**/*.py`.
-- **CORS + compression** – Simple Response helpers for CORS and optional gzip/base64 for API Gateway.
+- 🪂 **Serverless now, Chilo later** – Handler signatures, requirements, and validation flags align with Chilo to ease migration.
+- 🗺️ **Zero route boilerplate** – File paths (with `_` for dynamic segments) become routes automatically.
+- ✅ **Built-in validation** – Use `openapi_validate_request/response` with an OpenAPI file or requirement decorators.
+- 🔌 **Middleware + lifecycle hooks** – `before_all`, `after_all`, `when_auth_required`, `on_error`, `on_timeout`, plus `on_startup`/`on_shutdown` via `warmup()`/`cooldown()`.
+- 🧭 **Unified glob routing** – A single pattern resolver; directories default to recursive `**/*.py`.
+- 🛡️ **CORS + compression** – Response helpers for CORS and optional gzip/base64 for API Gateway.
 
 ---
 
