@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest.mock import patch
 
 from chilo_sls.apigateway.router import Router
 
@@ -558,6 +559,29 @@ class RouterPatternTest(unittest.TestCase):
         router.cooldown()
         self.assertTrue(mock_middleware.mock_on_shutdown.has_been_called)
         mock_middleware.mock_on_shutdown.has_been_called = False
+
+    def test_cooldown_auto_registered_and_calls_shutdown_hooks(self):
+        registered = {}
+
+        def fake_register(fn):
+            registered['fn'] = fn
+
+        called = {'count': 0}
+
+        def hook():
+            called['count'] += 1
+
+        with patch('chilo_sls.apigateway.router.atexit.register', side_effect=fake_register):
+            Router(
+                base_path=self.base_path,
+                handlers=self.handler_pattern,
+                on_shutdown=[hook],
+                openapi=self.schema_path
+            )
+
+        self.assertIn('fn', registered)
+        registered['fn']()
+        self.assertEqual(called['count'], 1)
 
     def test_basic_pattern_routing_works_with_openapi_validate_request_response_body(self):
         dynamic_event = self.mock_request.get_dynamic_event(

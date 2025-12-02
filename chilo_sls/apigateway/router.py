@@ -1,3 +1,4 @@
+import atexit
 import logging
 
 from chilo_sls.apigateway.exception import ApiException, ApiTimeOutException
@@ -28,13 +29,13 @@ class Router:
         self.__openapi_validate_response = kwargs.get('openapi_validate_response', False)
         self.__resolver = Resolver(**kwargs)
         self.__validator = Validator(**kwargs)
+        atexit.register(self.cooldown)
 
     def auto_load(self):
         self.__resolver.auto_load()
         self.__validator.auto_load()
 
     def warmup(self):
-        self.auto_load()
         for hook in self.__on_startup:
             hook()
 
