@@ -125,6 +125,11 @@ coverage
 lint-*
 requirements.txt
 Dockerfile
+.integration-venv/
+coverage/integration/
+coverage/reports/
+dist/
+chilo_sls.egg-info/
 
 # IDE
 .idea

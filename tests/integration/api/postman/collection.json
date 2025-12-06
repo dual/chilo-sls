@@ -1,0 +1,102 @@
+{
+    "info": {
+        "name": "chilo-sls integration (serverless offline)",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Pattern router basic POST",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"hello\": \"world\"\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:3000/integration/pattern/basic",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "integration",
+                        "pattern",
+                        "basic"
+                    ]
+                }
+            },
+            "response": [],
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.test(\"Status is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "pm.test(\"Response echoes router pattern\", function () {",
+                            "    const json = pm.response.json();",
+                            "    pm.expect(json.router_pattern_basic).to.be.an('object');",
+                            "});"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Directory router basic POST",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"hello\": \"world\"\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:3000/integration/directory/basic",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "integration",
+                        "directory",
+                        "basic"
+                    ]
+                }
+            },
+            "response": [],
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "pm.test(\"Status is 200\", function () {",
+                            "    pm.response.to.have.status(200);",
+                            "});",
+                            "pm.test(\"Response echoes router directory\", function () {",
+                            "    const json = pm.response.json();",
+                            "    pm.expect(json.router_directory_basic).to.be.an('object');",
+                            "});"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

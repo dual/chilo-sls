@@ -1,0 +1,76 @@
+{
+  "/Users/paulcruse3/Developer/projects/chilo-sls/tests/integration/api/serverless.yml": {
+    "versionFramework": "4.27.0",
+    "servicePath": "/Users/paulcruse3/Developer/projects/chilo-sls/tests/integration/api/serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "chilo-sls-integration",
+      "frameworkVersion": "*",
+      "provider": {
+        "name": "aws",
+        "runtime": "python3.12",
+        "stage": "local",
+        "region": "us-east-1",
+        "environment": {
+          "PYTHONUNBUFFERED": "1"
+        }
+      },
+      "plugins": [
+        "serverless-offline"
+      ],
+      "functions": {
+        "pattern": {
+          "handler": "tests/integration/api/handler.pattern_handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/integration/pattern/{proxy+}",
+                "method": "ANY"
+              }
+            }
+          ]
+        },
+        "directory": {
+          "handler": "tests/integration/api/handler.directory_handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/integration/directory/{proxy+}",
+                "method": "ANY"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "python3.12",
+      "stage": "local",
+      "region": "us-east-1",
+      "environment": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "error": {
+      "message": "You must sign in or use a license key with Serverless Framework V.4 and later versions. Please use \"serverless login\".",
+      "stack": "Error: You must sign in or use a license key with Serverless Framework V.4 and later versions. Please use \"serverless login\".\n    at Authentication.getAuthenticatedData (file:///Users/paulcruse3/.serverless/releases/4.27.0/package/dist/sf-core.js:719:11188)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Authentication.authenticate (file:///Users/paulcruse3/.serverless/releases/4.27.0/package/dist/sf-core.js:722:4121)\n    at async TraditionalRunner.resolveVariablesAndAuthenticate (file:///Users/paulcruse3/.serverless/releases/4.27.0/package/dist/sf-core.js:731:1394)\n    at async TraditionalRunner.run (file:///Users/paulcruse3/.serverless/releases/4.27.0/package/dist/sf-core.js:1402:28091)\n    at async route (file:///Users/paulcruse3/.serverless/releases/4.27.0/package/dist/sf-core.js:1577:2848)\n    at async Object.run (file:///Users/paulcruse3/.serverless/releases/4.27.0/package/dist/sf-core.js:1578:3876)\n    at async run2 (file:///Users/paulcruse3/.serverless/releases/4.27.0/package/dist/sf-core.js:1578:5030)"
+    },
+    "serviceRawFile": "service: chilo-sls-integration\n\nframeworkVersion: \"*\"\n\nprovider:\n    name: aws\n    runtime: python3.12\n    stage: local\n    region: us-east-1\n    environment:\n        PYTHONUNBUFFERED: \"1\"\n\nplugins:\n    - serverless-offline\n\nfunctions:\n    pattern:\n        handler: tests/integration/api/handler.pattern_handler\n        events:\n            - httpApi:\n                  path: /integration/pattern/{proxy+}\n                  method: ANY\n    directory:\n        handler: tests/integration/api/handler.directory_handler\n        events:\n            - httpApi:\n                  path: /integration/directory/{proxy+}\n                  method: ANY\n",
+    "command": [
+      "offline",
+      "start"
+    ],
+    "options": {
+      "config": "tests/integration/api/serverless.yml",
+      "stage": "local",
+      "host": "0.0.0.0",
+      "port": "3000"
+    },
+    "serviceProviderAwsCfStackId": null,
+    "serviceProviderAwsCfStackCreated": null,
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": null,
+    "serviceProviderAwsCfStackOutputs": null
+  }
+}

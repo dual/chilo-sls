@@ -13,7 +13,7 @@ chilo-sls is a lightweight, opinionated Lambda/API Gateway framework. It auto-ro
 
 Agents: start with [.agents/AGENTS.md](.agents/AGENTS.md) for a quick “how to use” guide.
 
-## 📦 Install (Python 3.12)
+## 📦 Install (Python 3.9)
 
 ```bash
 pip install -e .
@@ -46,7 +46,7 @@ uv pip install -e .
 ```python
 # api/main.py
 from chilo_sls.apigateway.router import Router
-from tests.mocks.apigateway import mock_middleware  # swap with your own
+from tests.unit.mocks.apigateway import mock_middleware  # swap with your own
 
 router = Router(
     base_path='unit-test/v1',

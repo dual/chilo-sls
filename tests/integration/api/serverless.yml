@@ -1,0 +1,28 @@
+service: chilo-sls-integration
+
+frameworkVersion: "*"
+
+provider:
+    name: aws
+    runtime: python3.9
+    stage: local
+    region: us-east-1
+    environment:
+        PYTHONUNBUFFERED: "1"
+
+plugins:
+    - serverless-offline
+
+functions:
+    pattern:
+        handler: tests/integration/api/handler.pattern_handler
+        events:
+            - httpApi:
+                  path: /integration/pattern/{proxy+}
+                  method: ANY
+    directory:
+        handler: tests/integration/api/handler.directory_handler
+        events:
+            - httpApi:
+                  path: /integration/directory/{proxy+}
+                  method: ANY

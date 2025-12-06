@@ -1,0 +1,161 @@
+version: 2.1
+orbs:
+    python: circleci/python@3.3.0
+    sonarcloud: sonarsource/sonarcloud@3.0.1
+commands:
+    setup-artifacts:
+        steps:
+            - run: mkdir -p coverage coverage/reports coverage/lint coverage/integration
+    install-deps:
+        steps:
+            - checkout
+            - python/install-packages:
+                  pkg-manager: pipenv
+                  args: '--dev'
+            - persist_to_workspace:
+                  root: ~/project
+                  paths:
+                      - ./*
+    lint-code:
+        steps:
+            - run: pipenv run lint
+            - store_artifacts:
+                  path: coverage/lint
+    unit-test-with-coverage:
+        steps:
+            - run: pipenv run coverage
+            - store_artifacts:
+                  path: coverage
+            - store_artifacts:
+                  path: coverage/reports
+            - store_test_results:
+                  path: coverage/reports
+    install-postman-cli:
+        steps:
+            - run: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+    install-serverless-cli:
+        steps:
+            - run: npm install -g serverless serverless-offline
+    build-package:
+        steps:
+            - run: pipenv run python -m pip install --upgrade build
+            - run: pipenv run python -m build
+    install-wheel-into-venv:
+        steps:
+            - run:
+                  name: Install built wheel into isolated venv
+                  command: |
+                      python -m venv .integration-venv
+                      . .integration-venv/bin/activate
+                      pip install dist/*.whl
+    run-serverless-offline:
+        steps:
+            - run:
+                  name: Start serverless offline
+                  command: |
+                      . .integration-venv/bin/activate
+                      serverless offline start --config tests/integration/api/serverless.yml --stage local --host 0.0.0.0 --port 3000 > coverage/integration/serverless.log 2>&1
+                  background: true
+            - run:
+                  name: Wait for serverless offline
+                  command: sleep 5
+    run-postman-collection:
+        steps:
+            - run:
+                  name: Run Postman collection
+                  command: postman collection run tests/integration/api/postman/collection.json --bail failure --verbose
+            - store_artifacts:
+                  path: coverage/integration
+    pypi-setup:
+        steps:
+            - run: echo -e "[pypi]" >> ~/.pypirc
+            - run: echo -e "username = __token__" >> ~/.pypirc
+            - run: echo -e "password = $PYPI_TOKEN" >> ~/.pypirc
+    pypi-publish:
+        steps:
+            - run: python3 -m pip install --user --upgrade setuptools wheel
+            - run: python3 setup.py sdist bdist_wheel
+            - run: python3 -m pip install --user --upgrade twine
+            - run: python3 -m twine upload dist/*
+jobs:
+    install-build:
+        docker:
+            - image: cimg/python:3.12.4
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+        steps:
+            - install-deps
+    lint:
+        docker:
+            - image: cimg/python:3.12.4
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+        steps:
+            - attach_workspace:
+                  at: ~/project
+            - setup-artifacts
+            - lint-code
+    unit-test:
+        docker:
+            - image: cimg/python:3.12.4
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+        steps:
+            - attach_workspace:
+                  at: ~/project
+            - setup-artifacts
+            - unit-test-with-coverage
+            - sonarcloud/scan
+
+    integration-test:
+        docker:
+            - image: cimg/python:3.12.4-node
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+        steps:
+            - attach_workspace:
+                  at: ~/project
+            - setup-artifacts
+            - build-package
+            - install-wheel-into-venv
+            - install-serverless-cli
+            - install-postman-cli
+            - run-serverless-offline
+            - run-postman-collection
+
+    install-build-publish:
+        docker:
+            - image: cimg/python:3.12.4
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+        steps:
+            - checkout
+            - python/install-packages:
+                  pkg-manager: pipenv
+            - pypi-setup
+            - pypi-publish
+
+workflows:
+    install-build-test-workflow:
+        jobs:
+            - install-build
+            - lint:
+                  requires:
+                      - install-build
+            - unit-test:
+                  context:
+                      - sonarcloud
+                  requires:
+                      - install-build
+            - integration-test:
+                  requires:
+                      - install-build
+
+    install-build-publish-workflow:
+        jobs:
+            - install-build-publish:
+                  filters:
+                      tags:
+                          only: /.*/
+                      branches:
+                          ignore: /.*/

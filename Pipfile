@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [requires]
-python_version = "3.12"
+python_version = "3.9"
 
 [pipenv]
 allow_prereleases = false
@@ -27,9 +27,10 @@ pylint = "*"
 pytest = "*"
 pytest-html = "*"
 pytest-cov = "*"
+build = "*"
 
 [scripts]
-generate = "python -m chilo_sls.apigateway generate-openapi --base=chilo_sls/example --handlers=tests/mocks/apigateway/openapi/**/*.py --output=tests/outputs --format=json,yml --delete"
+generate = "python -m chilo_sls.apigateway generate-openapi --base=chilo_sls/example --handlers=tests/unit/mocks/apigateway/openapi/**/*.py --output=tests/outputs --format=json,yml --delete"
 test = "python -m unittest discover"
-coverage = "coverage run --source chilo_sls/ -m pytest tests/chilo_sls --cov=chilo_sls --junitxml ./coverage/reports/xunit.xml --cov-report xml:./coverage/reports/coverage.xml --html=./coverage/reports/index.html --self-contained-html --cov-report html:./coverage -p no:warnings -o log_cli=true"
+coverage = "coverage run --source chilo_sls/ -m pytest tests/unit/chilo_sls --cov=chilo_sls --junitxml ./coverage/reports/xunit.xml --cov-report xml:./coverage/reports/coverage.xml --html=./coverage/reports/index.html --self-contained-html --cov-report html:./coverage -p no:warnings -o log_cli=true"
 lint = "pylint chilo_sls --recursive=y --fail-under 10 --output-format=text:coverage/lint/report.txt,json:coverage/lint/report.json,parseable,colorized"
