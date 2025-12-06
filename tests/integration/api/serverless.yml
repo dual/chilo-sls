@@ -11,7 +11,16 @@ provider:
         PYTHONUNBUFFERED: "1"
 
 plugins:
+    - serverless-python-requirements
     - serverless-offline
+
+custom:
+    pythonRequirements:
+        usePipenv: true
+        slim: true
+        dockerizePip: false
+        invalidateCaches: true
+        pythonBin: "../../.integration-venv/bin/python"
 
 functions:
     pattern:

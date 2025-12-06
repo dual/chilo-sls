@@ -36,6 +36,9 @@ commands:
     install-serverless-cli:
         steps:
             - run: npm install -g serverless serverless-offline
+    install-serverless-python-reqs:
+        steps:
+            - run: npm install -g serverless-python-requirements
     build-package:
         steps:
             - run: pipenv run python -m pip install --upgrade build
@@ -109,7 +112,7 @@ jobs:
 
     integration-test:
         docker:
-            - image: cimg/python:3.12.4-node
+            - image: cimg/python:3.9.17-node
         environment:
             PIPENV_VENV_IN_PROJECT: true
         steps:
@@ -119,6 +122,7 @@ jobs:
             - build-package
             - install-wheel-into-venv
             - install-serverless-cli
+            - install-serverless-python-reqs
             - install-postman-cli
             - run-serverless-offline
             - run-postman-collection
