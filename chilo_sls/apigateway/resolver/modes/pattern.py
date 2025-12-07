@@ -33,38 +33,53 @@ class PatternModeResolver(BaseModeResolver):
         return file_pattern
 
     def __get_import_path_file_tree(self, split_path, split_index, file_tree, file_pattern):
-        if split_index < len(split_path):
-            import_part = None
-            route_part = split_path[split_index].replace('-', '_')
-            if route_part == '':
-                if '__init__.py' in file_tree:
-                    import_part = '__init__.py'
-                else:
-                    import_part = None
-            else:
-                possible_directory = f'{route_part}'
-                possible_file = file_pattern.replace('*', route_part)
-                if possible_directory in file_tree:
-                    import_part = possible_directory
-                elif possible_file in file_tree:
-                    import_part = possible_file
-                elif file_tree.get('__dynamic_files') and file_tree['__dynamic_files']:
-                    import_part = list(file_tree['__dynamic_files'])[0]
-                    self.has_dynamic_route = True
-                    self.dynamic_parts[split_index] = split_path[split_index]
-            if import_part is not None:
-                self.append_import_path(import_part)
-                file_leaf = self.determine_which_file_leaf(file_tree, import_part)
-                index_file = file_pattern.replace('*', import_part)
-                if '.py' not in import_part and split_index+1 == len(split_path):
-                    if index_file in file_leaf:
-                        self.append_import_path(index_file)
-                        return
-                    if isinstance(file_leaf, dict) and '__init__.py' in file_leaf:
-                        self.append_import_path('__init__.py')
-                        return
-                if import_part == '__init__.py':
-                    return
-                self.__get_import_path_file_tree(split_path, split_index+1, file_leaf, file_pattern)
-            else:
-                raise ApiException(code=404, message='route not found')
+        if split_index >= len(split_path):
+            return
+
+        import_part = self.__select_import_part(split_path, split_index, file_tree, file_pattern)
+        if import_part is None:
+            raise ApiException(code=404, message='route not found')
+
+        self.append_import_path(import_part)
+        file_leaf = self.determine_which_file_leaf(file_tree, import_part)
+        path_state = self.__build_path_state(split_index, split_path, import_part)
+        if self.__append_index_if_leaf(import_part, file_leaf, file_pattern, path_state):
+            return
+        if import_part == '__init__.py':
+            return
+        self.__get_import_path_file_tree(split_path, split_index+1, file_leaf, file_pattern)
+
+    def __select_import_part(self, split_path, split_index, file_tree, file_pattern):
+        route_part = split_path[split_index].replace('-', '_')
+        if route_part == '':
+            return '__init__.py' if '__init__.py' in file_tree else None
+
+        possible_directory = f'{route_part}'
+        possible_file = file_pattern.replace('*', route_part)
+        if possible_directory in file_tree:
+            return possible_directory
+        if possible_file in file_tree:
+            return possible_file
+        if file_tree.get('__dynamic_files') and file_tree['__dynamic_files']:
+            import_part = list(file_tree['__dynamic_files'])[0]
+            self.has_dynamic_route = True
+            self.dynamic_parts[split_index] = split_path[split_index]
+            return import_part
+        return None
+
+    def __build_path_state(self, split_index, split_path, import_part):
+        return {
+            'is_last': split_index + 1 == len(split_path),
+            'is_directory': '.py' not in import_part
+        }
+
+    def __append_index_if_leaf(self, import_part, file_leaf, file_pattern, path_state):
+        index_file = file_pattern.replace('*', import_part)
+        if path_state['is_directory'] and path_state['is_last']:
+            if index_file in file_leaf:
+                self.append_import_path(index_file)
+                return True
+            if isinstance(file_leaf, dict) and '__init__.py' in file_leaf:
+                self.append_import_path('__init__.py')
+                return True
+        return False
