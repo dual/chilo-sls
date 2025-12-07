@@ -5,64 +5,30 @@ orbs:
 commands:
     setup-artifacts:
         steps:
-            - run: mkdir -p coverage coverage/reports coverage/lint coverage/integration
-    install-dependencies-deploy:
+            - run: mkdir ./coverage && mkdir ./coverage/grpc && mkdir ./coverage/lint && mkdir ./coverage/reports && mkdir ./coverage/pretty && mkdir ./coverage/typing || exit 0
+    run-tests:
         steps:
-            - python/install-packages:
-                  pkg-manager: pipenv
-    lint-code:
-        steps:
-            - run: pipenv run lint
+            - run: 
+                command: pipenv run test_ci
+                environment:
+                    AWS_ACCESS_KEY_ID: 0
+                    AWS_SECRET_ACCESS_KEY: 0
+                    AWS_DEFAULT_REGION: us-east-2
+                    S3_ENDPOINT: http://localhost:4566
+            - run: 
+                command: pipenv run coverage
+                environment:
+                    AWS_ACCESS_KEY_ID: 0
+                    AWS_SECRET_ACCESS_KEY: 0
+                    AWS_DEFAULT_REGION: us-east-2
+                    S3_ENDPOINT: http://localhost:4566
             - store_artifacts:
-                  path: coverage/lint
-    unit-test-with-coverage:
-        steps:
-            - run: pipenv run coverage
-            - store_artifacts:
-                  path: coverage
-            - store_artifacts:
-                  path: coverage/reports
+                path: ./coverage
             - store_test_results:
-                  path: coverage/reports
-    install-postman-cli:
+                path: ./coverage/reports/junit.xml
+    sync-packaging:
         steps:
-            - run: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
-    install-serverless-cli:
-        steps:
-            - run: npm install -g serverless serverless-offline
-    install-serverless-python-reqs:
-        steps:
-            - run: npm install -g serverless-python-requirements
-    build-package:
-        steps:
-            - run: pipenv run python -m pip install --upgrade build
-            - run: pipenv run python -m build
-    install-wheel-into-venv:
-        steps:
-            - run:
-                  name: Install built wheel into isolated venv
-                  command: |
-                      python -m venv .integration-venv
-                      . .integration-venv/bin/activate
-                      pip install dist/*.whl
-    run-serverless-offline:
-        steps:
-            - run:
-                  name: Start serverless offline
-                  command: |
-                      . .integration-venv/bin/activate
-                      serverless offline start --config tests/integration/api/serverless.yml --stage local --host 0.0.0.0 --port 3000 > coverage/integration/serverless.log 2>&1
-                  background: true
-            - run:
-                  name: Wait for serverless offline
-                  command: sleep 5
-    run-postman-collection:
-        steps:
-            - run:
-                  name: Run Postman collection
-                  command: postman collection run tests/integration/api/postman/collection.json --bail failure --verbose
-            - store_artifacts:
-                  path: coverage/integration
+            - run: pipenv run setup-sync
     pypi-setup:
         steps:
             - run: echo -e "[pypi]" >> ~/.pypirc
@@ -74,10 +40,73 @@ commands:
             - run: python3 setup.py sdist bdist_wheel
             - run: python3 -m pip install --user --upgrade twine
             - run: python3 -m twine upload dist/*
+    typing-check:
+        steps:
+            - run: pipenv run type-check
+            - run: pipenv run typing-report
+            - store_artifacts:
+                path: ./coverage/typing
+    lint-code:
+        steps:
+            - run: pipenv run lint
+            - run: pipenv run pylint daplug_s3 --output-format=json > ./coverage/lint/pylint_report.json || exit 0
+            - run: pipenv run pylint-json2html ./coverage/lint/pylint_report.json -o ./coverage/lint/pylint_report.html || exit 0
+            - store_artifacts:
+                path: ./coverage/lint
+    python-build-dist:
+        steps:
+            - run: pipenv run python -m pip install --upgrade pip build
+            - run: pipenv run python -m build
+            - run: pipenv requirements --dev > dev-requirements.txt
+    python-test-dist:
+        steps:
+            - run: python -m venv /tmp/package-smoke
+            - run: /tmp/package-smoke/bin/pip install --upgrade pip
+            - run: /tmp/package-smoke/bin/pip install -r dev-requirements.txt
+            - run: /tmp/package-smoke/bin/pip install dist/*.whl
+            - run: /tmp/package-smoke/bin/python -m pytest tests/unit
+            - run:
+                environment:
+                    AWS_ACCESS_KEY_ID: test
+                    AWS_SECRET_ACCESS_KEY: test
+                    AWS_DEFAULT_REGION: us-east-1
+                    S3_ENDPOINT: http://localhost:4566
+                command: /tmp/package-smoke/bin/python -m pytest tests/integrations
 jobs:
+    lint:
+        docker:
+            - image: cimg/python:3.10.14
+        steps:
+            - attach_workspace:
+                at: ~/project
+            - setup-artifacts
+            - lint-code
+    type-check:
+        docker:
+            - image: cimg/python:3.10.14
+        steps:
+            - attach_workspace:
+                at: ~/project
+            - setup-artifacts
+            - typing-check
+    test:
+        docker:
+            - image: cimg/python:3.10.14
+            - image: localstack/localstack:3.2
+              environment:
+                  SERVICES: s3
+                  AWS_ACCESS_KEY_ID: 0
+                  AWS_SECRET_ACCESS_KEY: 0
+                  AWS_DEFAULT_REGION: us-east-2
+        steps:
+            - attach_workspace:
+                at: ~/project
+            - setup-artifacts
+            - run-tests
+            - sonarcloud/scan
     install-build:
         docker:
-            - image: cimg/python:3.9.17
+            - image: cimg/python:3.10.14
         steps:
             - checkout:
                   method: full
@@ -88,47 +117,32 @@ jobs:
                 root: ~/project
                 paths:
                     - ./*
-                    - .venv
-    lint:
-        docker:
-            - image: cimg/python:3.9.17
-        steps:
-            - attach_workspace:
-                  at: ~/project
-            - setup-artifacts
-            - lint-code
-    unit-test:
-        docker:
-            - image: cimg/python:3.9.17
-        steps:
-            - attach_workspace:
-                  at: ~/project
-            - setup-artifacts
-            - unit-test-with-coverage
-            - sonarcloud/scan
-    integration-test:
-        docker:
-            - image: cimg/python:3.9.17-node
-        steps:
-            - attach_workspace:
-                  at: ~/project
-            - setup-artifacts
-            - build-package
-            - install-wheel-into-venv
-            - install-serverless-cli
-            - install-serverless-python-reqs
-            - install-postman-cli
-            - run-serverless-offline
-            - run-postman-collection
     install-build-publish:
         docker:
-            - image: cimg/python:3.9.17
+            - image: cimg/python:3.10.14
         steps:
             - checkout:
                   method: full
-            - install-dependencies-deploy
+            - python/install-packages:
+                pkg-manager: pipenv
+                args: '--dev'
+            - sync-packaging
             - pypi-setup
             - pypi-publish
+    package-smoke-test:
+        docker:
+            - image: cimg/python:3.10.14
+            - image: localstack/localstack:3.2
+              environment:
+                  SERVICES: s3
+                  AWS_ACCESS_KEY_ID: test
+                  AWS_SECRET_ACCESS_KEY: test
+                  AWS_DEFAULT_REGION: us-east-1
+        steps:
+            - attach_workspace:
+                at: ~/project
+            - python-build-dist
+            - python-test-dist
 workflows:
     install-build-publish-workflow:
         jobs:
@@ -148,11 +162,14 @@ workflows:
             - lint:
                 requires:
                     - install-build
-            - unit-test:
+            - type-check:
+                  requires:
+                    - install-build
+            - test:
                 context:
                     - sonarcloud
                 requires:
                     - install-build
-            - integration-test:
+            - package-smoke-test:
                 requires:
                     - install-build
