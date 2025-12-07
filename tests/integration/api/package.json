@@ -1,5 +1,9 @@
 {
-  "dependencies": {
-    "serverless-python-requirements": "^6.1.2"
-  }
+    "name": "chilo-sls-integration-tools",
+    "private": true,
+    "devDependencies": {
+        "serverless": "3.39.0",
+        "serverless-offline": "^13.8.1",
+        "serverless-python-requirements": "6.1.2"
+    }
 }

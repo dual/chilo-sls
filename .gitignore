@@ -130,9 +130,9 @@ coverage/integration/
 coverage/reports/
 dist/
 chilo_sls.egg-info/
-.serverless/
 .requirements/
 node_modules/
+.serverless/
 
 # IDE
 .idea
