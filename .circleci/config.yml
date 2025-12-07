@@ -15,7 +15,6 @@ commands:
                   root: ~/project
                   paths:
                       - ./*
-                      - .venv
     install-dependencies-deploy:
         steps:
             - python/install-packages:
@@ -95,8 +94,6 @@ jobs:
     lint:
         docker:
             - image: cimg/python:3.9.17
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
         steps:
             - attach_workspace:
                   at: ~/project
