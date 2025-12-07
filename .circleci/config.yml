@@ -58,8 +58,8 @@ commands:
     run-serverless-offline:
         steps:
             - run:
+                command: . .integration-venv/bin/activate && cd tests/integration/api && npm start
                 background: true
-                command: pipenv run serve_integration
             - run: sleep 5
     run-postman-collection:
         steps:
