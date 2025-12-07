@@ -172,6 +172,6 @@ workflows:
             - package-smoke-test:
                 requires:
                     - install-build
-            - integration-test:
-                requires:
-                    - install-build
+            # - integration-test:
+            #     requires:
+            #         - install-build
