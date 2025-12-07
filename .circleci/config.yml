@@ -83,14 +83,14 @@ commands:
 jobs:
     install-build:
         docker:
-            - image: cimg/python:3.12.4
+            - image: cimg/python:3.9.17
         environment:
             PIPENV_VENV_IN_PROJECT: true
         steps:
             - install-deps
     lint:
         docker:
-            - image: cimg/python:3.12.4
+            - image: cimg/python:3.9.17
         environment:
             PIPENV_VENV_IN_PROJECT: true
         steps:
@@ -100,7 +100,7 @@ jobs:
             - lint-code
     unit-test:
         docker:
-            - image: cimg/python:3.12.4
+            - image: cimg/python:3.9.17
         environment:
             PIPENV_VENV_IN_PROJECT: true
         steps:
@@ -129,7 +129,7 @@ jobs:
 
     install-build-publish:
         docker:
-            - image: cimg/python:3.12.4
+            - image: cimg/python:3.9.17
         environment:
             PIPENV_VENV_IN_PROJECT: true
         steps:
