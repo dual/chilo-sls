@@ -6,13 +6,16 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+PATTERN_HANDLERS = os.path.join(ROOT_DIR, 'tests', 'integration', 'api', 'pattern_handlers', '**', '*.py')
+DIRECTORY_HANDLERS = os.path.join(ROOT_DIR, 'tests', 'integration', 'api', 'directory_handlers', '**', '*.py')
+
 from chilo_sls.apigateway.router import Router
 from tests.integration.api.middleware import mock_middleware
 
 
 pattern_router = Router(
     base_path='integration/pattern',
-    handlers='tests/integration/api/pattern_handlers/**/*.py',
+    handlers=PATTERN_HANDLERS,
     openapi_validate_request=False,
     openapi_validate_response=False,
     when_auth_required=mock_middleware.mock_when_auth_required,
@@ -29,7 +32,7 @@ pattern_router.warmup()
 
 directory_router = Router(
     base_path='integration/directory',
-    handlers='tests/integration/api/directory_handlers/**/*.py',
+    handlers=DIRECTORY_HANDLERS,
     openapi_validate_request=False,
     openapi_validate_response=False,
     when_auth_required=mock_middleware.mock_when_auth_required,
