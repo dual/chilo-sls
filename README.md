@@ -13,7 +13,7 @@ chilo-sls is a lightweight, opinionated Lambda/API Gateway framework. It auto-ro
 
 Agents: start with [.agents/AGENTS.md](.agents/AGENTS.md) for a quick “how to use” guide.
 
-## 📦 Install (Python 3.9)
+## 📦 Install (Python 3.10.14)
 
 ```bash
 pip install -e .

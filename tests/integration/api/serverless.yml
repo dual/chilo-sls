@@ -4,7 +4,7 @@ frameworkVersion: "*"
 
 provider:
     name: aws
-    runtime: python3.9
+    runtime: python3.10
     stage: local
     region: us-east-1
     environment:
