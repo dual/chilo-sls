@@ -1,6 +1,9 @@
 {
     "name": "chilo-sls-integration-tools",
     "private": true,
+    "scripts": {
+        "serverless": "serverless"
+    },
     "devDependencies": {
         "serverless": "3.39.0",
         "serverless-offline": "^13.8.1",

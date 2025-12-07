@@ -45,6 +45,24 @@ commands:
             - run: /tmp/package-smoke/bin/pip install -r dev-requirements.txt
             - run: /tmp/package-smoke/bin/pip install dist/*.whl
             - run: /tmp/package-smoke/bin/python -m pytest tests/unit
+    install-integration-npm:
+        steps:
+            - run: cd tests/integration/api && npm ci
+    install-wheel-into-venv:
+        steps:
+            - run: python -m venv .integration-venv
+            - run: . .integration-venv/bin/activate && pip install dist/*.whl
+    run-serverless-offline:
+        steps:
+            - run:
+                background: true
+                command: pipenv run serve_integration
+            - run: sleep 5
+    run-postman-collection:
+        steps:
+            - run: postman collection run tests/integration/api/postman/collection.json --bail failure --verbose
+            - store_artifacts:
+                path: ./coverage/pretty
 jobs:
     lint:
         docker:
@@ -108,6 +126,22 @@ jobs:
                 at: ~/project
             - python-build-dist
             - python-test-dist
+    integration-test:
+        docker:
+            - image: cimg/python:3.10.14-node
+        steps:
+            - attach_workspace:
+                at: ~/project
+            - setup-artifacts
+            - python/install-packages:
+                pkg-manager: pipenv
+                args: '--dev'
+            - python-build-dist
+            - install-wheel-into-venv
+            - install-integration-npm
+            - install-postman-cli
+            - run-serverless-offline
+            - run-postman-collection
 workflows:
     install-build-publish-workflow:
         jobs:
@@ -133,5 +167,8 @@ workflows:
                 requires:
                     - install-build
             - package-smoke-test:
+                requires:
+                    - install-build
+            - integration-test:
                 requires:
                     - install-build

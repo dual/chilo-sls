@@ -35,4 +35,5 @@ generate = "python -m chilo_sls.apigateway generate-openapi --base=chilo_sls/exa
 test = "python -m unittest discover"
 coverage = "coverage run --source chilo_sls/ -m pytest tests/unit/chilo_sls --cov=chilo_sls --junitxml ./coverage/reports/xunit.xml --cov-report xml:./coverage/reports/coverage.xml --html=./coverage/reports/index.html --self-contained-html --cov-report html:./coverage -p no:warnings -o log_cli=true"
 lint = "pylint chilo_sls --recursive=y --fail-under 10 --output-format=text:coverage/lint/report.txt,json:coverage/lint/report.json,parseable,colorized"
+serve_integration = ". .integration-venv/bin/activate && cd tests/integration/api && npm run serverless -- offline start --config serverless.yml --stage local --host 0.0.0.0 --port 3000 > ../../coverage/pretty/serverless.log 2>&1"
 setup-sync = "python tools/sync_setup_requires.py"
