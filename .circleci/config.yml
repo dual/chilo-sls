@@ -6,9 +6,8 @@ commands:
     setup-artifacts:
         steps:
             - run: mkdir -p coverage coverage/reports coverage/lint coverage/integration
-    install-deps:
+    install-dependencies-build:
         steps:
-            - checkout
             - python/install-packages:
                   pkg-manager: pipenv
                   args: '--dev'
@@ -16,6 +15,10 @@ commands:
                   root: ~/project
                   paths:
                       - ./*
+    install-dependencies-deploy:
+        steps:
+            - python/install-packages:
+                  pkg-manager: pipenv
     lint-code:
         steps:
             - run: pipenv run lint
@@ -84,15 +87,12 @@ jobs:
     install-build:
         docker:
             - image: cimg/python:3.9.17
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
         steps:
-            - install-deps
+            - checkout
+            - install-dependencies-build
     lint:
         docker:
             - image: cimg/python:3.9.17
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
         steps:
             - attach_workspace:
                   at: ~/project
@@ -101,8 +101,6 @@ jobs:
     unit-test:
         docker:
             - image: cimg/python:3.9.17
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
         steps:
             - attach_workspace:
                   at: ~/project
@@ -113,8 +111,6 @@ jobs:
     integration-test:
         docker:
             - image: cimg/python:3.9.17-node
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
         steps:
             - attach_workspace:
                   at: ~/project
@@ -130,19 +126,18 @@ jobs:
     install-build-publish:
         docker:
             - image: cimg/python:3.9.17
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
         steps:
             - checkout
-            - python/install-packages:
-                  pkg-manager: pipenv
+            - install-dependencies-deploy
             - pypi-setup
             - pypi-publish
 
 workflows:
     install-build-test-workflow:
         jobs:
-            - install-build
+            - install-build:
+                context:
+                    - pipenv
             - lint:
                   requires:
                       - install-build
@@ -158,6 +153,8 @@ workflows:
     install-build-publish-workflow:
         jobs:
             - install-build-publish:
+                  context:
+                    - pipenv
                   filters:
                       tags:
                           only: /.*/
