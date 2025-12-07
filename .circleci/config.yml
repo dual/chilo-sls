@@ -88,6 +88,7 @@ jobs:
                 root: ~/project
                 paths:
                     - ./*
+                    - .venv
     lint:
         docker:
             - image: cimg/python:3.9.17
