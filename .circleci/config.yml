@@ -48,6 +48,9 @@ commands:
     install-integration-npm:
         steps:
             - run: cd tests/integration/api && npm ci
+    install-postman-cli:
+        steps:
+            - run: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
     install-wheel-into-venv:
         steps:
             - run: python -m venv .integration-venv

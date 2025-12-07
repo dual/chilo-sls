@@ -29,6 +29,7 @@ pytest-html = "*"
 pytest-cov = "*"
 build = "*"
 tomli = "*"
+exceptiongroup = "*"
 
 [scripts]
 generate = "python -m chilo_sls.apigateway generate-openapi --base=chilo_sls/example --handlers=tests/unit/mocks/apigateway/openapi/**/*.py --output=tests/outputs --format=json,yml --delete"
