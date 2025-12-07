@@ -132,7 +132,7 @@ dist/
 chilo_sls.egg-info/
 .requirements/
 node_modules/
-.serverless/
+# .serverless/
 
 # IDE
 .idea
