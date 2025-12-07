@@ -9,6 +9,7 @@ provider:
     region: us-east-1
     environment:
         PYTHONUNBUFFERED: "1"
+        PYTHONPATH: ${self:servicePath}/../..
 
 plugins:
     - serverless-python-requirements
