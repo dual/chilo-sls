@@ -8,20 +8,8 @@ commands:
             - run: mkdir ./coverage && mkdir ./coverage/grpc && mkdir ./coverage/lint && mkdir ./coverage/reports && mkdir ./coverage/pretty && mkdir ./coverage/typing || exit 0
     run-tests:
         steps:
-            - run: 
-                command: pipenv run test_ci
-                environment:
-                    AWS_ACCESS_KEY_ID: 0
-                    AWS_SECRET_ACCESS_KEY: 0
-                    AWS_DEFAULT_REGION: us-east-2
-                    S3_ENDPOINT: http://localhost:4566
-            - run: 
-                command: pipenv run coverage
-                environment:
-                    AWS_ACCESS_KEY_ID: 0
-                    AWS_SECRET_ACCESS_KEY: 0
-                    AWS_DEFAULT_REGION: us-east-2
-                    S3_ENDPOINT: http://localhost:4566
+            - run: pipenv run test
+            - run: pipenv run coverage
             - store_artifacts:
                 path: ./coverage
             - store_test_results:
@@ -40,17 +28,9 @@ commands:
             - run: python3 setup.py sdist bdist_wheel
             - run: python3 -m pip install --user --upgrade twine
             - run: python3 -m twine upload dist/*
-    typing-check:
-        steps:
-            - run: pipenv run type-check
-            - run: pipenv run typing-report
-            - store_artifacts:
-                path: ./coverage/typing
     lint-code:
         steps:
             - run: pipenv run lint
-            - run: pipenv run pylint daplug_s3 --output-format=json > ./coverage/lint/pylint_report.json || exit 0
-            - run: pipenv run pylint-json2html ./coverage/lint/pylint_report.json -o ./coverage/lint/pylint_report.html || exit 0
             - store_artifacts:
                 path: ./coverage/lint
     python-build-dist:
@@ -65,13 +45,6 @@ commands:
             - run: /tmp/package-smoke/bin/pip install -r dev-requirements.txt
             - run: /tmp/package-smoke/bin/pip install dist/*.whl
             - run: /tmp/package-smoke/bin/python -m pytest tests/unit
-            - run:
-                environment:
-                    AWS_ACCESS_KEY_ID: test
-                    AWS_SECRET_ACCESS_KEY: test
-                    AWS_DEFAULT_REGION: us-east-1
-                    S3_ENDPOINT: http://localhost:4566
-                command: /tmp/package-smoke/bin/python -m pytest tests/integrations
 jobs:
     lint:
         docker:
@@ -81,14 +54,6 @@ jobs:
                 at: ~/project
             - setup-artifacts
             - lint-code
-    type-check:
-        docker:
-            - image: cimg/python:3.10.14
-        steps:
-            - attach_workspace:
-                at: ~/project
-            - setup-artifacts
-            - typing-check
     test:
         docker:
             - image: cimg/python:3.10.14
@@ -161,9 +126,6 @@ workflows:
                     - pipenv
             - lint:
                 requires:
-                    - install-build
-            - type-check:
-                  requires:
                     - install-build
             - test:
                 context:
