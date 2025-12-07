@@ -6,15 +6,6 @@ commands:
     setup-artifacts:
         steps:
             - run: mkdir -p coverage coverage/reports coverage/lint coverage/integration
-    install-dependencies-build:
-        steps:
-            - python/install-packages:
-                  pkg-manager: pipenv
-                  args: '--dev'
-            - persist_to_workspace:
-                  root: ~/project
-                  paths:
-                      - ./*
     install-dependencies-deploy:
         steps:
             - python/install-packages:
@@ -90,7 +81,13 @@ jobs:
         steps:
             - checkout:
                   method: full
-            - install-dependencies-build
+            - python/install-packages:
+                pkg-manager: pipenv
+                args: '--dev'
+            - persist_to_workspace:
+                root: ~/project
+                paths:
+                    - ./*
     lint:
         docker:
             - image: cimg/python:3.9.17
@@ -132,29 +129,29 @@ jobs:
             - pypi-setup
             - pypi-publish
 workflows:
+    install-build-publish-workflow:
+        jobs:
+            - install-build-publish:
+                context:
+                    - pipenv
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
     install-build-test-workflow:
         jobs:
             - install-build:
                 context:
                     - pipenv
             - lint:
-                  requires:
-                      - install-build
+                requires:
+                    - install-build
             - unit-test:
-                  context:
-                      - sonarcloud
-                  requires:
-                      - install-build
+                context:
+                    - sonarcloud
+                requires:
+                    - install-build
             - integration-test:
-                  requires:
-                      - install-build
-    install-build-publish-workflow:
-        jobs:
-            - install-build-publish:
-                  context:
-                    - pipenv
-                  filters:
-                      tags:
-                          only: /.*/
-                      branches:
-                          ignore: /.*/
+                requires:
+                    - install-build
