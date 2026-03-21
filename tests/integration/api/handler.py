@@ -5,9 +5,10 @@ import sys
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
+os.chdir(ROOT_DIR)
 
-PATTERN_HANDLERS = os.path.join(ROOT_DIR, 'tests', 'integration', 'api', 'pattern_handlers', '**', '*.py')
-DIRECTORY_HANDLERS = os.path.join(ROOT_DIR, 'tests', 'integration', 'api', 'directory_handlers', '**', '*.py')
+PATTERN_HANDLERS = 'tests/integration/api/pattern_handlers/**/*_controller.py'
+DIRECTORY_HANDLERS = 'tests/integration/api/directory_handlers'
 
 from chilo_sls.apigateway.router import Router
 from tests.integration.api.middleware import mock_middleware

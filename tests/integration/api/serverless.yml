@@ -25,13 +25,13 @@ custom:
 
 functions:
     pattern:
-        handler: tests/integration/api/handler.pattern_handler
+        handler: handler.pattern_handler
         events:
             - httpApi:
                   path: /integration/pattern/{proxy+}
                   method: ANY
     directory:
-        handler: tests/integration/api/handler.directory_handler
+        handler: handler.directory_handler
         events:
             - httpApi:
                   path: /integration/directory/{proxy+}
