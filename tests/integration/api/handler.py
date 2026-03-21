@@ -1,3 +1,4 @@
+import glob
 import os
 import sys
 
@@ -8,8 +9,15 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 os.chdir(ROOT_DIR)
 
-PATTERN_HANDLERS = 'tests/integration/api/pattern_handlers/**/*_controller.py'
-DIRECTORY_HANDLERS = 'tests/integration/api/directory_handlers'
+PATTERN_HANDLERS = os.path.join('tests', 'integration', 'api', 'pattern_handlers', '**', '*_controller.py')
+DIRECTORY_HANDLERS = os.path.join('tests', 'integration', 'api', 'directory_handlers')
+
+print(f'[DEBUG] __file__={__file__}', flush=True)
+print(f'[DEBUG] _here={_here}', flush=True)
+print(f'[DEBUG] ROOT_DIR={ROOT_DIR}', flush=True)
+print(f'[DEBUG] cwd={os.getcwd()}', flush=True)
+print(f'[DEBUG] PATTERN_HANDLERS={PATTERN_HANDLERS}', flush=True)
+print(f'[DEBUG] glob_result={glob.glob(PATTERN_HANDLERS, recursive=True)}', flush=True)
 
 from chilo_sls.apigateway.router import Router
 from tests.integration.api.middleware import mock_middleware
