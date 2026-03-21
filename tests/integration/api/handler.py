@@ -58,6 +58,8 @@ directory_router.warmup()
 
 
 def pattern_handler(event, context):
+    import json
+    print(f'[DEBUG] event={json.dumps(event, default=str)}', flush=True)
     return pattern_router.route(event, context)
 
 
