@@ -243,3 +243,60 @@ class RequestTest(unittest.TestCase):
     def test_timeout(self):
         request = Request(self.basic_request, None, 30)
         self.assertEqual(request.timeout, 30)
+
+
+class RequestV2Test(unittest.TestCase):
+    basic_v2 = mock_request.get_basic_v2()
+    v2_missing = mock_request.get_v2_with_missing_fields()
+    v2_default_route = mock_request.get_basic_v2_default_route()
+
+    def test_method_v2(self):
+        request = Request(self.basic_v2)
+        self.assertEqual(request.method, 'get')
+
+    def test_path_v2(self):
+        request = Request(self.basic_v2)
+        self.assertEqual(request.path, 'unit-test/v1/basic')
+
+    def test_resource_v2(self):
+        request = Request(self.basic_v2)
+        self.assertEqual(request.resource, '/{proxy+}')
+
+    def test_resource_v2_default_route(self):
+        request = Request(self.v2_default_route)
+        self.assertEqual(request.resource, '$default')
+
+    def test_route_v2(self):
+        request = Request(self.basic_v2)
+        self.assertEqual(request.route, '/unit-test/v1/basic')
+
+    def test_authorizer_v2(self):
+        request = Request(self.basic_v2)
+        self.assertDictEqual(request.authorizer, self.basic_v2['requestContext']['authorizer'])
+
+    def test_body_json_v2(self):
+        request = Request(self.basic_v2)
+        self.assertDictEqual(request.body, json.loads(self.basic_v2['body']))
+
+    def test_query_params_v2(self):
+        request = Request(self.basic_v2)
+        self.assertDictEqual(request.query_params, self.basic_v2['queryStringParameters'])
+
+    def test_path_params_v2(self):
+        request = Request(self.basic_v2)
+        self.assertDictEqual(request.path_params, self.basic_v2['pathParameters'])
+
+    def test_full_v2(self):
+        request = Request(self.basic_v2)
+        result = request.full
+        self.assertEqual(result['method'], 'get')
+        self.assertEqual(result['resource'], '/{proxy+}')
+        self.assertDictEqual(result['body'], {'body_key': 'body_value'})
+        self.assertDictEqual(result['params'], {'query': {'name': 'me'}, 'path': {'proxy': 'hello'}})
+
+    def test_v2_defaults(self):
+        request = Request(self.v2_missing)
+        self.assertEqual(request.method, '')
+        self.assertEqual(request.resource, '')
+        self.assertEqual(request.path, '')
+        self.assertEqual(request.query_params, {})

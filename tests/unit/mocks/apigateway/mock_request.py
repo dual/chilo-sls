@@ -884,3 +884,82 @@ def get_request_with_missing_fields():
         'pathParameters': {},
         'body': {}
     }
+
+
+def get_basic_v2():
+    return {
+        'version': '2.0',
+        'routeKey': 'GET /{proxy+}',
+        'rawPath': 'unit-test/v1/basic',
+        'rawQueryString': 'name=me',
+        'headers': {
+            'x-api-key': 'SOME-KEY',
+            'content-type': 'application/json'
+        },
+        'requestContext': {
+            'accountId': '123456789012',
+            'apiId': 'api-id',
+            'domainName': 'api-id.execute-api.us-east-1.amazonaws.com',
+            'domainPrefix': 'api-id',
+            'http': {
+                'method': 'GET',
+                'path': 'unit-test/v1/basic',
+                'protocol': 'HTTP/1.1',
+                'sourceIp': '127.0.0.1',
+                'userAgent': 'Custom User Agent'
+            },
+            'stage': '$default',
+            'authorizer': {
+                'lambda': {
+                    'x-authorizer-key': 'SOME KEY',
+                    'principalId': '9de3f415a97e410386dbef146e88744e'
+                }
+            }
+        },
+        'pathParameters': {
+            'proxy': 'hello'
+        },
+        'queryStringParameters': {
+            'name': 'me'
+        },
+        'body': json.dumps({'body_key': 'body_value'})
+    }
+
+
+def get_v2_with_missing_fields():
+    return {
+        'version': '2.0',
+        'headers': {
+            'x-api-key': 'SOME-KEY',
+            'content-type': 'application/json'
+        },
+        'requestContext': {},
+        'pathParameters': {},
+        'body': {}
+    }
+
+
+def get_basic_v2_default_route():
+    return {
+        'version': '2.0',
+        'routeKey': '$default',
+        'rawPath': '/unit-test/v1/basic',
+        'rawQueryString': '',
+        'headers': {
+            'x-api-key': 'SOME-KEY',
+            'content-type': 'application/json'
+        },
+        'requestContext': {
+            'http': {
+                'method': 'POST',
+                'path': '/unit-test/v1/basic',
+                'protocol': 'HTTP/1.1',
+                'sourceIp': '127.0.0.1',
+                'userAgent': 'Custom User Agent'
+            },
+            'stage': '$default'
+        },
+        'pathParameters': {},
+        'queryStringParameters': {},
+        'body': json.dumps({'body_key': 'body_value'})
+    }

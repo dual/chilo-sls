@@ -13,7 +13,7 @@ class Request:
         self.lambda_context = lambda_context
         self.__timeout = timeout
         self.__body = event['body'] if event.get('body') is not None else {}
-        self.__route = event['path'] if event.get('path') is not None else ''
+        self.__route = event['path'] if event.get('path') is not None else (event['rawPath'] if event.get('rawPath') is not None else '')
         self.__path_params = event['pathParameters'] if isinstance(event.get('pathParameters'), dict) else {}
         self.__request_context = event['requestContext'] if event.get('requestContext') is not None else {}
         self.__domain = event.get('requestContext', {}).get('domainName', '')
@@ -65,18 +65,27 @@ class Request:
     def method(self):
         if self.__event.get('httpMethod') is not None:
             return self.__event['httpMethod'].lower()
+        http_method = self.__event.get('requestContext', {}).get('http', {}).get('method')
+        if http_method is not None:
+            return http_method.lower()
         return ''
 
     @property
     def resource(self):
         if self.__event.get('resource') is not None:
             return self.__event['resource']
+        route_key = self.__event.get('routeKey')
+        if route_key is not None:
+            parts = route_key.split(' ', 1)
+            return parts[1] if len(parts) > 1 else route_key
         return ''
 
     @property
     def path(self):
         if self.__event.get('path') is not None:
             return self.__event['path']
+        if self.__event.get('rawPath') is not None:
+            return self.__event['rawPath']
         return ''
 
     @property

@@ -3,7 +3,7 @@
     "private": true,
     "scripts": {
         "serverless": "serverless",
-        "start": "serverless offline start --stage local --region us-east-2 --noPrependStageInUrl"
+        "start": "serverless offline start --stage local --region us-east-2"
     },
     "devDependencies": {
         "serverless": "3.39.0",
