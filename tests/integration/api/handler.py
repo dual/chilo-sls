@@ -1,8 +1,9 @@
 import os
 import sys
 
-# Ensure project root is on sys.path so chilo_sls and integration helpers resolve when run via serverless-offline
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+# Resolve project root from this file's location and ensure it is on sys.path and is the working directory
+_here = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(_here, '..', '..', '..'))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 os.chdir(ROOT_DIR)
