@@ -24,15 +24,27 @@ custom:
         pythonBin: "../../.integration-venv/bin/python"
 
 functions:
-    pattern:
+    pattern-v2:
         handler: handler.pattern_handler
         events:
             - httpApi:
                   path: /integration/pattern/{proxy+}
                   method: ANY
-    directory:
+    directory-v2:
         handler: handler.directory_handler
         events:
             - httpApi:
                   path: /integration/directory/{proxy+}
+                  method: ANY
+    pattern-v1:
+        handler: handler.pattern_handler_v1
+        events:
+            - http:
+                  path: /integration-v1/pattern/{proxy+}
+                  method: ANY
+    directory-v1:
+        handler: handler.directory_handler_v1
+        events:
+            - http:
+                  path: /integration-v1/directory/{proxy+}
                   method: ANY
