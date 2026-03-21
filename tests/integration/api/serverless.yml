@@ -27,12 +27,12 @@ functions:
     pattern:
         handler: handler.pattern_handler
         events:
-            - httpApi:
+            - http:
                   path: /integration/pattern/{proxy+}
                   method: ANY
     directory:
         handler: handler.directory_handler
         events:
-            - httpApi:
+            - http:
                   path: /integration/directory/{proxy+}
                   method: ANY
