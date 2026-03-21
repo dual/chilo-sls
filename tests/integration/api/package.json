@@ -2,11 +2,11 @@
     "name": "chilo-sls-integration-tools",
     "private": true,
     "scripts": {
-        "serverless": "serverless",
-        "start": "serverless offline start --stage local --region us-east-2 --noPrependStageInUrl"
+        "serverless": "osls",
+        "start": "osls offline start --stage local --region us-east-2 --noPrependStageInUrl"
     },
     "devDependencies": {
-        "serverless": "3.39.0",
+        "osls": "^3.44.1",
         "serverless-offline": "^13.8.1",
         "serverless-python-requirements": "6.1.2"
     }
