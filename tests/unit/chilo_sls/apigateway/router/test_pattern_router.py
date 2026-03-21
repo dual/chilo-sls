@@ -37,6 +37,55 @@ class RouterPatternTest(unittest.TestCase):
         self.assertDictEqual(self.expected_open_headers, result['headers'])
         self.assertDictEqual({"router_pattern_basic": {"body_key": "body_value"}}, json_dict_response)
 
+    def test_basic_pattern_routing_works_with_single_dynamic_route_when_path_parameters_is_none(self):
+        dynamic_event = self.mock_request.get_dynamic_event(
+            headers={'content-type': 'application/json'},
+            path='unit-test/v1/nested/auth0|12312490845',
+            proxy='nested/auth0|12312490845',
+            method='patch',
+            body={
+                'test_id': 'unit-test',
+                'email': 'unit@email.com'
+            }
+        )
+        dynamic_event['pathParameters'] = None
+        router = Router(
+            base_path=self.base_path,
+            handlers=self.handler_pattern,
+            openapi=self.schema_path,
+            output_error=True
+        )
+        result = router.route(dynamic_event, None)
+        json_dict_response = json.loads(result['body'])
+        self.assertFalse(result['isBase64Encoded'])
+        self.assertEqual(200, result['statusCode'])
+        self.assertDictEqual(self.expected_open_headers, result['headers'])
+        self.assertEqual('auth0|12312490845', json_dict_response['path_params']['nested_id'])
+
+    def test_basic_pattern_routing_decodes_encoded_dynamic_route_values(self):
+        dynamic_event = self.mock_request.get_dynamic_event(
+            headers={'content-type': 'application/json'},
+            path='unit-test/v1/nested/auth0%7C12312490845',
+            proxy='nested/auth0%7C12312490845',
+            method='patch',
+            body={
+                'test_id': 'unit-test',
+                'email': 'unit@email.com'
+            }
+        )
+        dynamic_event['pathParameters'] = {}
+        router = Router(
+            base_path=self.base_path,
+            handlers=self.handler_pattern,
+            openapi=self.schema_path
+        )
+        result = router.route(dynamic_event, None)
+        json_dict_response = json.loads(result['body'])
+        self.assertFalse(result['isBase64Encoded'])
+        self.assertEqual(200, result['statusCode'])
+        self.assertDictEqual(self.expected_open_headers, result['headers'])
+        self.assertEqual('auth0|12312490845', json_dict_response['path_params']['nested_id'])
+
     def test_basic_directory_routing_works_with_ending_path_parameters(self):
         dynamic_event = self.mock_request.get_dynamic_event(
             headers={'x-api-key': 'some-key'},

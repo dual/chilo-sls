@@ -1,3 +1,5 @@
+from urllib.parse import unquote
+
 from chilo_sls.apigateway.resolver.cache import ResolverCache
 from chilo_sls.apigateway.endpoint import Endpoint
 from chilo_sls.apigateway.exception import ApiException
@@ -81,4 +83,4 @@ class Resolver:
                     message='no route found; endpoint does not have proper variables in required_route'
                 )
             dynamic_name = variable_name.strip('{').strip('}')
-            request.path_params = dynamic_name, self.__resolver.dynamic_parts[part]
+            request.path_params = dynamic_name, unquote(self.__resolver.dynamic_parts[part])

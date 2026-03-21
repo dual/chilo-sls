@@ -30,6 +30,12 @@ class SQSRecordTest(unittest.TestCase):
         self.assertEqual(record.md5_of_body, self.basic_record['md5OfBody'])
         self.assertEqual(record.attributes, self.expected_attributes)
 
+    def test_record_accepts_camel_case_message_attributes(self):
+        camel_record = mock_event.get_basic_camel_case()['Records'][0]
+        record = Record(camel_record)
+        self.assertEqual(record.attributes['SomeString'], 'Some String')
+        self.assertEqual(record.attributes['SomeBinary'], 'Some Binary')
+
     def test_record_prints(self):
         try:
             record = Record(self.basic_record)
